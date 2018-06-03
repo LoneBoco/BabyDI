@@ -1,0 +1,12 @@
+language: c++
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: true
+
+      script:
+        - cd tests
+        - clang++ --std=c++17 -I../include test.cpp -o test
+        - ./test
