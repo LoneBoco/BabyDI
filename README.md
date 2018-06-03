@@ -56,5 +56,6 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-[Building Example](example/README.md)
-[Running Tests](tests/README.md)
+[Building Example](example)
+
+[Running Tests](tests)
