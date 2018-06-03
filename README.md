@@ -1,6 +1,7 @@
-
 BabyDI
 ===================
+
+[![Build Status](https://travis-ci.org/simply-jos/BabyDI.svg?branch=master)](https://travis-ci.org/simply-jos/BabyDI)
 
 A stupid-simple, header-only, zero-dependency DI framework for C++17. What you see is what you get, nothing fancy, nothing crazy robust.
 
