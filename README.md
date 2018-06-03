@@ -6,9 +6,8 @@ BabyDI
 A stupid-simple, header-only, zero-dependency DI framework for C++17. What you see is what you get, nothing fancy, nothing crazy robust.
 
 Example:
-```c++17
+```c++
 #include <iostream>
-
 #include "BabyDI.hpp"
 
 // Define a simple interface..
