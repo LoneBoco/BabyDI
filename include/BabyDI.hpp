@@ -24,7 +24,7 @@ namespace BabyDI {
   struct InjectionRepository {
     static void AddInjectMeta(InjectMetaBase* injectMeta) {
       m_injections.push_back(std::unique_ptr<InjectMetaBase>(injectMeta));
-    };
+    }
 
     template <typename T>
     static void Provide(T* provision) {
@@ -36,7 +36,7 @@ namespace BabyDI {
         ),
         m_injections.end()
       );
-    };
+    }
 
     template<typename F>
     static void AssertAllProvided(F&& assertCallback) {
@@ -49,7 +49,7 @@ namespace BabyDI {
 
         assertCallback(interfaceNames);
       }
-    };
+    }
 
     static inline std::vector<std::unique_ptr<InjectMetaBase>> m_injections;
   };
@@ -59,15 +59,15 @@ namespace BabyDI {
     constexpr InjectMeta(T** injectAddress, const char* interfaceName) :
       m_injectAddress(injectAddress), m_interfaceName(interfaceName) {
       ::BabyDI::InjectionRepository::AddInjectMeta(this);
-    };
+    }
 
     bool MatchesType(size_t typeHash) const override {
       return typeid(T).hash_code() == typeHash;
-    };
+    }
 
     void Provide(void* address) override {
       *m_injectAddress = (T*)address;
-    };
+    }
 
     bool ProvideIfMatch(size_t typeHash, void* address) override {
       if (MatchesType(typeHash)) {
@@ -77,11 +77,11 @@ namespace BabyDI {
       } else {
         return false;
       }
-    };
+    }
 
     const char* const GetInterfaceName() const override {
       return m_interfaceName;
-    };
+    }
 
     const char* const m_interfaceName;
     T** const m_injectAddress;
