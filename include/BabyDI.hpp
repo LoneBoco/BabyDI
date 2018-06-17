@@ -11,6 +11,14 @@
 #endif
 
 namespace BabyDI {
+  struct ProvisionMeta {
+    template <typename T>
+    ProvisionMeta(T* underlying) :
+      provision((void*)underlying) {};
+
+    void* provision;
+  };
+
   struct InjectMetaBase {
     virtual ~InjectMetaBase() {};
 
@@ -28,10 +36,18 @@ namespace BabyDI {
 
     template <typename T>
     static void Provide(T* provision) {
+      auto typeHash = typeid(T).hash_code();
+
+      // Insert this provision into a map so we can retrieve it manually later
+      if (m_provisions.find(typeHash) == m_provisions.end()) {
+        m_provisions[typeHash] = std::make_unique<ProvisionMeta>((void*)provision);
+      }
+
+      // Seek out any unprovided injection spots and inject this provision
       m_injections.erase(
         std::remove_if(m_injections.begin(), m_injections.end(),
           [&](auto& meta) {
-            return meta->ProvideIfMatch(typeid(T).hash_code(), provision);
+            return meta->ProvideIfMatch(typeHash, provision);
           }
         ),
         m_injections.end()
@@ -51,7 +67,19 @@ namespace BabyDI {
       }
     }
 
+    template <typename T>
+    static T* Get(size_t hash) {
+      auto itr = m_provisions.find(hash);
+
+      if (itr != m_provisions.end()) {
+        return (T*)itr->second->provision;
+      } else {
+        return nullptr;
+      }
+    }
+
     static inline std::vector<std::unique_ptr<InjectMetaBase>> m_injections;
+    static inline std::unordered_map<size_t, std::unique_ptr<ProvisionMeta>> m_provisions;
   };
 
   template <typename T>
@@ -91,6 +119,14 @@ namespace BabyDI {
   static void AssertAllProvided(F&& assertCallback) {
     InjectionRepository::AssertAllProvided(assertCallback);
   }
+
+  /**
+   * Gets an injected implementation, returning null if it's unprovided.
+   */
+  template <typename T>
+  static T* Get() {
+    return InjectionRepository::Get<T>(typeid(T).hash_code());
+  };
 
 #ifndef BABYDI_EMBEDDED
   static void AssertAllProvided() {
