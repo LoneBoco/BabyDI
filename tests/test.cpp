@@ -71,11 +71,25 @@ void test_cat_inject() {
   TEST_CHECK(strcmp(dependent.CallImplementation(), "Meow!") == 0);
 }
 
+void test_manual_get() {
+  PROVIDE(IAnimal, new Cat());
+
+  auto animal = BabyDI::Get<IAnimal>();
+  TEST_CHECK(strcmp(animal->Speak(), "Meow!") == 0);
+}
+
+void test_failed_get() {
+  auto animal = BabyDI::Get<IAnimal>();
+  TEST_CHECK(animal == nullptr);
+}
+
 TEST_LIST = {
   { "provided",   test_provided   },
   { "unprovided", test_unprovided },
   { "injection",  test_injection  },
   { "dog_inject", test_dog_inject },
   { "cat_inject", test_cat_inject },
+  { "manual_get", test_manual_get },
+  { "failed_get", test_failed_get },
   { 0 }
 };
