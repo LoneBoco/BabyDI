@@ -41,7 +41,7 @@ namespace BabyDI {
 
       // Insert this provision into a map so we can retrieve it manually later
       if (m_provisions.find(typeHash) == m_provisions.end()) {
-        m_provisions[typeHash] = std::make_unique<ProvisionMeta>((void*)provision);
+        m_provisions[typeHash] = std::unique_ptr<ProvisionMeta>(new ProvisionMeta((void*)provision));
       }
 
       // Seek out any unprovided injection spots and inject this provision
