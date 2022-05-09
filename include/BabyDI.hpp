@@ -17,6 +17,11 @@ namespace BabyDI {
     ProvisionMeta(T* underlying) :
       provision((void*)underlying) {};
 
+    template <typename T>
+    void Release() {
+        delete reinterpret_cast<T*>(provision);
+    }
+
     void* provision;
   };
 
@@ -53,6 +58,27 @@ namespace BabyDI {
         ),
         m_injections.end()
       );
+    }
+
+    template <typename T>
+    static void Release() {
+      auto typeHash = typeid(T).hash_code();
+
+      // Find the provision in the provision map.
+      auto itr = m_provisions.find(typeHash);
+      if (itr == m_provisions.end())
+          return;
+
+      // Seek out all injections and nullify them.
+      for (auto& meta : m_injections) {
+          if (meta->MatchesType(typeHash)) {
+              meta->Provide(nullptr);
+          }
+      }
+
+      // Delete the provision.
+      itr->second->Release<T>();
+      m_provisions.erase(itr);
     }
 
     template<typename F>
@@ -127,7 +153,7 @@ namespace BabyDI {
   template <typename T>
   static T* Get() {
     return InjectionRepository::Get<T>(typeid(T).hash_code());
-  };
+  }
 
 #ifndef BABYDI_EMBEDDED
   static void AssertAllProvided() {
@@ -146,6 +172,9 @@ namespace BabyDI {
 
 #define PROVIDE(InterfaceType, Implementation) \
   ::BabyDI::InjectionRepository::Provide<InterfaceType>(Implementation);
+
+#define RELEASE(InterfaceType) \
+  ::BabyDI::InjectionRepository::Release<InterfaceType>();
 
 #define INJECT_2(InterfaceType, MemberName) \
   using BabyDI_##MemberName##_type = InterfaceType; \
